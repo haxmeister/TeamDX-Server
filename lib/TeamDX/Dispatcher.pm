@@ -30,10 +30,10 @@ sub login {
     if($data->{name}){
         $thisUser->{name} = $data->{name};
         $thisUser->{isloggedin} = 1;
-        $handle->send('{action:"login", success:1}');
+        $handle->send('{clientAction:"login", success:1}');
         $self->{server}->log_this( $thisUser->{name}." has logged in \n");
     }else{
-        $handle->send('{action:"error", msg:"Can\'t log in without player name"}');
+        $handle->send('{clientAction:"error", msg:"Can\'t log in without player name"}');
     }
 }
 
@@ -42,7 +42,7 @@ sub logout{
     my $data   = shift;
     my $handle = shift;
 
-    $handle->send('{action:"logout", msg:"Server has closed the connection."}');
+    $handle->send('{clientAction:"logout", msg:"Server has closed the connection."}');
     $self->{server}->remove_user($handle);
     $self->{server}->log_this($data->{name}." has logged out");
 }

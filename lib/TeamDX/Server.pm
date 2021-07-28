@@ -131,12 +131,12 @@ sub dispatch {
 
     eval { $data = decode_json($msg_string); 1; };
     $data or return;
-    next unless defined( $data->{action} );
+    next unless defined( $data->{serverAction} );
 
-    $action = $data->{action};
+    $serverAction = $data->{serverAction};
 
-    if ( $self->{dispatch}->can($action) ) {
-        $self->{dispatch}->$action($data,$handle);
+    if ( $self->{dispatch}->can($serverAction) ) {
+        $self->{dispatch}->$serverAction($data,$handle);
     }
 }
 
@@ -180,12 +180,6 @@ sub remove_user {
     push (@{$self->{users}}, @newUserList);
 }
 
-
-sub error {
-    my $self = shift;
-    my $data = shift;
-
-}
 
 sub log_this {
     my $self = shift;
