@@ -8,7 +8,6 @@ sub new {
     my $self = bless {
         'server'      => $args->{'server'},
     }, $class;
-
     return $self;
 }
 

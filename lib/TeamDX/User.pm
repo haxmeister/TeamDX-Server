@@ -11,7 +11,6 @@ sub new {
         'handle'     => $args->{handle},
         'name'       => '',
         'isloggedin' => '',
-
     }, $class;
     return $self;
 }

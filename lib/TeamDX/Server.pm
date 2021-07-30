@@ -80,10 +80,9 @@ sub start {
                 # receive messages from already connected clients
                 elsif($data = <$handle>){
                 # $handle->recv( my $data, 2024 );
-                        chomp($data);
-                        $self->dispatch( $handle, $data );
+                    chomp($data);
+                    $self->dispatch( $handle, $data );
 
-                        #TODO something with incoming data
                 }
             }
         }
