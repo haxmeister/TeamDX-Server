@@ -11,6 +11,8 @@ use TeamDX::User;
 
 $| = 1;
 
+# no server crashes due to sigpipe (client closes unexpectedly)
+$SIG{'PIPE'} = 'IGNORE'
 
 sub new {
     my ( $class, $args ) = @_;
