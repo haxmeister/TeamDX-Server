@@ -12,7 +12,7 @@ use TeamDX::User;
 $| = 1;
 
 # no server crashes due to sigpipe (client closes unexpectedly)
-$SIG{'PIPE'} = 'IGNORE'
+$SIG{'PIPE'} = 'IGNORE';
 
 sub new {
     my ( $class, $args ) = @_;
@@ -128,7 +128,7 @@ sub dispatch {
     my $handle     = shift;
     my $msg_string = shift;
     my $data;
-    my $action;
+    my $serverAction;
 
     eval { $data = decode_json($msg_string); 1; };
     $data or return;
