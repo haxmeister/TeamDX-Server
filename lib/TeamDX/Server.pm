@@ -72,7 +72,7 @@ sub start {
         if ( my @readables = $self->{poll}->can_read(1) ) {
             foreach my $handle (@readables) {
 
-                        # catch new client connections
+                # catch new client connections
                 if ( $handle == $self->{sock} ) {
                     $self->new_client( $self->{sock}->accept );
                 }
@@ -93,10 +93,10 @@ sub start {
 sub new_client {
     my $self = shift;
     my $sock = shift;
-    my $user = TeamDX::User->new({
-        'handle' => $sock,
-    });
-    push @{$self->{users}}, $user;
+    #my $user = TeamDX::User->new({
+        #'handle' => $sock,
+    #});
+    #push @{$self->{users}}, $user;
     $self->{poll}->add($sock);
     $self->log_this( "New client connected at " . $sock->peerhost . ":" . $sock->peerport );
 }
@@ -109,7 +109,7 @@ sub broadcast {
     eval {$string = encode_json($data);1;} or return;
 
     foreach my $handle ( $self->{selector}->can_write(0) ) {
-        $thisUser = $self->user_from_handle($handle);
+        $thisUser = $self->get_user_from_handle($handle);
 
         # only broadcast to logged in users
         if ($thisUser->{isloggedin}){
@@ -144,7 +144,7 @@ sub dispatch {
 
 # accepts a handle and returns the username that it belongs too
 # if the handle doesn't match a user it returns an empty string
-sub user_from_handle {
+sub get_user_from_handle {
     my $self        = shift;
     my $this_handle = shift;
     my $this_user   = '';
@@ -156,6 +156,30 @@ sub user_from_handle {
     }
     return $this_user;
 }
+
+# accepts a name string as an argument and searches the user list
+# returns a ref to a user object that has that name
+# returns an empty string if none are found
+sub get_user_from_name {
+    my $self     = shift;
+    my $this_name = shift;
+
+    foreach my $user ( @{$self->{users}} ){
+        if ($this_name eq $user->{name}){
+            return $user;
+        }else{
+            return '';
+        }
+    }
+}
+
+# returns a list of all users that are logged in
+sub get_loggedin_users {}
+
+# returns a
+sub get_all_users {}
+
+
 
 
 # accepts a username

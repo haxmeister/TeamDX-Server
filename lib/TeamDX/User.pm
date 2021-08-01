@@ -9,12 +9,19 @@ sub new {
 
     my $self = bless {
         'handle'     => $args->{handle},
-        'name'       => '',
-        'isloggedin' => '',
+        'name'       => $args->{name} || '',
+        'isloggedin' => $args->{isloggedin} || '',
+        'kills'      => '',
+        'rank'       => '',
     }, $class;
+
+    $self->_init();
     return $self;
 }
 
+sub _init{
+    my $self = shift;
+}
 
 
 
