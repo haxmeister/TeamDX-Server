@@ -45,7 +45,7 @@ sub init{
     # start listening on the port
     $self->{sock} = IO::Socket::INET->new(
         Listen    => 5,
-        LocalAddr => 'localhost',
+        LocalAddr => '0.0.0.0',
         LocalPort => $self->{'server_port'},
         Proto     => 'tcp',
         ReusePort => 1,
