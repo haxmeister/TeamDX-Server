@@ -31,7 +31,7 @@ sub login {
         if($this_user){
             $this_user->{isloggedin} = 1;
             $this_user->{handle} = $handle;
-            $handle->send('{clientAction:"login", success:1}');
+            $handle->send('{clientAction:"login", success:1}\r\n');
             $self->{server}->log_this( $this_user->{name}." has logged back in \n");
         }else{
             my $user = TeamDX::User->new({
@@ -40,11 +40,11 @@ sub login {
                 'isloggedin' => 1,
             });
             push @{$self->{server}->{users}}, $user;
-            $handle->send('{clientAction:"login", success:1}');
+            $handle->send('{clientAction:"login", success:1}\r\n');
             $self->{server}->log_this( $user->{name}." has logged in..");
         }
     }else{
-        $handle->send('{clientAction:"error", msg:"Can\'t log in without player name"}');
+        $handle->send('{clientAction:"login", success:0, error:"Can\'t log in without player name"}\r\n');
     }
 }
 
@@ -53,7 +53,7 @@ sub logout{
     my $data   = shift;
     my $handle = shift;
 
-    $handle->send('{clientAction:"logout", msg:"Server has closed the connection."}');
+    $handle->send('{clientAction:"logout", msg:"Server has closed the connection."}\r\n');
     $self->{server}->remove_user($handle);
     $self->{server}->log_this($data->{name}." has logged out");
 }
