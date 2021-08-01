@@ -18,6 +18,7 @@ sub new {
     my ( $class, $args ) = @_;
     my $self = bless {
         'server_port' => $args->{'server_port'},
+        'debug'       => $args->{'debug'},
         'dispatch'    => undef,
         'poll'        => undef,
         'json'        => undef,
@@ -237,6 +238,13 @@ sub timestamp {
     my $month = $mon + 1;
     $year = $year + 1900;
     return "[$month/$mday/$year $hour:$min:$sec]";
+}
+
+sub sendto{
+    my $self = shift;
+    my $handle = shift;
+    my $data = shift;
+
 }
 1;
 

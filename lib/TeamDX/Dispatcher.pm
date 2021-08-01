@@ -6,7 +6,7 @@ use warnings;
 sub new {
     my ( $class, $args ) = @_;
     my $self = bless {
-        'server'      => $args->{'server'},
+        'server' => $args->{'server'},
     }, $class;
     return $self;
 }
@@ -32,6 +32,7 @@ sub login {
             $this_user->{isloggedin} = 1;
             $this_user->{handle} = $handle;
             $handle->send('{clientAction:"login", success:1}\r\n');
+            $handle->send('{clientAction:"test", success:1}\r\n');
             $self->{server}->log_this( $this_user->{name}." has logged back in \n");
         }else{
             my $user = TeamDX::User->new({

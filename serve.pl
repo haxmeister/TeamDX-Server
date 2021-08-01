@@ -9,7 +9,8 @@ use sigtrap qw/handler signal_handler normal-signals/;
 
 
 my $server = TeamDX::Server->new({
-    'server_port' =>3232,
+    'server_port' => 3232,
+    'debug'       => 1,
 });
 
 $server->start();
