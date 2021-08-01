@@ -75,7 +75,7 @@ sub get_logged_in_users{
     }
 
     my $msg = encode_json(%response);
-    $handle->send($msg.$server->{eol});
+    $handle->send($msg.$self->{server}->{eol});
 
 
 }
