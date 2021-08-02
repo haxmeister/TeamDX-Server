@@ -16,7 +16,7 @@ sub sendall {
     my $data     = shift;
     my $handle   = shift;
 
-
+    $data->{result} = 1;
     $self->{server}->broadcast($data);
 }
 
