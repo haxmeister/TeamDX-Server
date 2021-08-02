@@ -115,6 +115,10 @@ sub broadcast {
         # only broadcast to logged in users
         if ($thisUser->{isloggedin}){
 
+            if($self->{debug}){
+                $self->log_this("broadcasting to ".$thisUser->{name}.":  ".$string);
+            }
+
             # send to socket without error or remove the user and connection
             unless ( eval { $handle->send( $string . $self->{eol} ); 1; } ) {
                 $self->warn_this( "Removing " . $thisUser->{name} . " due to errors" );
