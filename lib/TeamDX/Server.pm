@@ -24,7 +24,7 @@ sub new {
         'json'        => undef,
         'users'       => undef,
         'sock'        => undef,
-        'eol'         => '\r\n',
+        'eol'         => "\r\n",
         'recBuf'      => undef,
     }, $class;
 
