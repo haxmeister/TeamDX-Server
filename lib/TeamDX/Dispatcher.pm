@@ -36,9 +36,9 @@ sub login {
             $handle->send(  $msg. $self->{server}->{eol} );
 
             if($self->{server}->{debug}){
-                $self->{server}->log_this("sending:  ".$msg.$self->{server}->{eol});
+                $self->{server}->log_this("sending:  ".$msg);
             }
-            $self->{server}->log_this( $this_user->{name}." has logged back in \n");
+            $self->{server}->log_this( $this_user->{name}." has logged back in..");
         }else{
             $msg = '{"clientAction":"login","result":1}';
             my $user = TeamDX::User->new({
@@ -56,6 +56,10 @@ sub login {
     }else{
         $msg = '{"clientAction":"login","result":0, error:"Can\'t log in without player name"}';
         $handle->send($msg.$self->{server}->{eol});
+
+        if($self->{server}->{debug}){
+            $self->{server}->log_this("sending:  ".$msg);
+        }
     }
 }
 

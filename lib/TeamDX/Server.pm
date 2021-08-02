@@ -112,7 +112,7 @@ sub broadcast {
     my $thisUser;
     eval {$string = encode_json($data);1;} or return;
 
-    foreach my $handle ( $self->{selector}->can_write(0) ) {
+    foreach my $handle ( $self->{poll}->can_write(0) ) {
         $thisUser = $self->get_user_from_handle($handle);
 
         # only broadcast to logged in users
