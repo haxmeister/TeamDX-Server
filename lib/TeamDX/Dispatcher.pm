@@ -40,17 +40,22 @@ sub login {
             }
             $self->{server}->log_this( $this_user->{name}." has logged back in \n");
         }else{
+            $msg = '{"clientAction":"login","result":1}';
             my $user = TeamDX::User->new({
                 'handle'     => $handle,
                 'name'       => $data->{name},
                 'isloggedin' => 1,
             });
+            if($self->{server}->{debug}){
+                $self->{server}->log_this("sending:  ".$msg);
+            }
             push @{$self->{server}->{users}}, $user;
-            $handle->send('{clientAction:"login", success:1}\r\n');
+            $handle->send($msg.$self->{server}->{eol});
             $self->{server}->log_this( $user->{name}." has logged in..");
         }
     }else{
-        $handle->send('{clientAction:"login", success:0, error:"Can\'t log in without player name"}\r\n');
+        $msg = '{"clientAction":"login","result":0, error:"Can\'t log in without player name"}';
+        $handle->send($msg.$self->{server}->{eol});
     }
 }
 
@@ -58,12 +63,12 @@ sub logout{
     my $self   = shift;
     my $data   = shift;
     my $handle = shift;
-    my $msg ="{clientAction:\"logout\", msg:\"Server has closed the connection.\"}\r\n";
+    my $msg ='{clientAction:\"logout\", msg:\"Server has closed the connection.\"}';
 
     if($self->{server}->{debug}){
         $self->{server}->log_this("sending:  ".$msg);
     }
-    $handle->send($msg);
+    $handle->send($msg.$self->{server}->{eol});
     $self->{server}->remove_user($handle);
     $self->{server}->log_this($data->{name}." has logged out");
 }
@@ -72,11 +77,11 @@ sub get_logged_in_users{
     my $self   = shift;
     my $data   = shift;
     my $handle = shift;
+    my $msg;
     my %response =(
         'clientAction' => 'list_logged_in_users',
         'user_list'    => undef,
     );
-
 
     foreach my $user ( @{$self->{server}->{users}} ){
         if ($user->{isloggedin}){
@@ -84,11 +89,13 @@ sub get_logged_in_users{
         }
     }
 
-    my $msg = encode_json(%response);
+    $msg = encode_json(%response);
     $handle->send($msg.$self->{server}->{eol});
-
-
+    if($self->{server}->{debug}){
+        $self->{server}->log_this("sending:  ".$msg);
+    }
 }
+
 sub get_known_users{
     my $self   = shift;
     my $data   = shift;
