@@ -33,7 +33,7 @@ sub login {
             $this_user->{isloggedin} = 1;
             $this_user->{handle} = $handle;
             #$msg = "{clientAction:\"login\", success:1}\r\n";
-            $handle->send( '{"clientAction":"login","result":1}' . $EOL );
+            $handle->send( '{"clientAction":"login","result":1}' . $self->{server}->{eol} );
             #$handle->send($msg);
             #$handle->send('{clientAction:"test", success:1}\r\n');
 
