@@ -85,6 +85,7 @@ sub get_logged_in_users{
     my %response =(
         'clientAction' => 'list_logged_in_users',
         'user_list'    => undef,
+        'result'       => 1,
     );
 
     foreach my $user ( @{$self->{server}->{users}} ){
