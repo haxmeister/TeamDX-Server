@@ -38,7 +38,7 @@ If unsuccessful it will respond with an error message. Currently the only error 
 {
   "clientAction":"login",
   "result":0, 
-  error:"Can\'t log in without player name"
+  "error":"Can\'t log in without player name"
 }
 ```
 
