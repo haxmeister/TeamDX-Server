@@ -47,7 +47,7 @@ Server will close the connection and remove the user from the working list
 example:
 ```json
 {
-  "serverAction':"logout",
+  "serverAction":"logout",
   "user":"Munny"
 }
 ```
