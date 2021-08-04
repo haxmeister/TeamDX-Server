@@ -54,7 +54,7 @@ sub login {
             $self->{server}->log_this( $user->{name}." has logged in..");
         }
     }else{
-        $msg = '{"clientAction":"login","result":0, error:"Can\'t log in without player name"}';
+        $msg = '{"clientAction":"login","result":0, "error":"Can\'t log in without player name"}';
         $handle->send($msg.$self->{server}->{eol});
 
         if($self->{server}->{debug}){
