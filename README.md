@@ -11,9 +11,9 @@ Echos the JSON message to all connected clients including the sender (this could
 example:
 ```json
 {
-  serverAction:"sendall",
-  clientAction:"whatever"
-  name:"Munny"
+  "serverAction":"sendall",
+  "clientAction":"whatever"
+  "name":"Munny"
 }
 ```
 
@@ -22,15 +22,15 @@ Associates a username with the ip/port socket
 example:
 ```json
 {
-  serverAction:"login",
-  user:"Munny"
+  "serverAction":"login",
+  "user":"Munny"
 }
 ```
 The server will respond to this if successful as follows
 ```json
 {
-  clientAction:"login", 
-  result:1
+  "clientAction":"login", 
+  "result":1
 }
 ```
 If unsuccessful it will respond with an error message. Currently the only error is if a name wasn't provided.
@@ -38,7 +38,7 @@ If unsuccessful it will respond with an error message. Currently the only error 
 {
   "clientAction":"login",
   "result":0, 
-  "error":"Can\'t log in without player name"
+  "error":"Can't log in without player name"
 }
 ```
 
@@ -47,7 +47,7 @@ Server will close the connection and remove the user from the working list
 example:
 ```json
 {
-  serverAction:"logout",
-  user:"Munny"
+  "serverAction':"logout",
+  "user":"Munny"
 }
 ```
