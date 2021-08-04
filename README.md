@@ -30,14 +30,15 @@ The server will respond to this if successful as follows
 ```json
 {
   clientAction:"login", 
-  success:1
+  result:1
 }
 ```
 If unsuccessful it will respond with an error message. Currently the only error is if a name wasn't provided.
 ```json
 {
-  clientAction:"error", 
-  msg:"Can\'t log in without player name"
+  "clientAction":"login",
+  "result":0, 
+  error:"Can\'t log in without player name"
 }
 ```
 
@@ -50,11 +51,3 @@ example:
   user:"Munny"
 }
 ```
-The server will respond with:
-```json
-{
-  clientAction:"logout", 
-  msg:"Server has closed the connection."
-}
-```
-
