@@ -10,7 +10,7 @@ sub new {
     my $self = bless {
         'handle'     => $args->{handle},
         'name'       => $args->{name} || '',
-        'isloggedin' => $args->{isloggedin} || '',
+        'isloggedin' => $args->{isloggedin} || '0',
         'kills'      => '',
         'rank'       => '',
     }, $class;

@@ -27,7 +27,7 @@ sub login {
     my $this_user;
     my $msg;
 
-    if($data->{name}){
+    if(exists $data->{name}){
         $this_user = $self->{server}->get_user_from_name($data->{name});
         if($this_user){
             $this_user->{isloggedin} = 1;
@@ -67,12 +67,12 @@ sub logout{
     my $self   = shift;
     my $data   = shift;
     my $handle = shift;
-    my $msg ='{clientAction:\"logout\", msg:\"Server has closed the connection.\"}';
+    #my $msg ='{clientAction:\"logout\", msg:\"Server has closed the connection.\"}';
 
-    if($self->{server}->{debug}){
-        $self->{server}->log_this("sending:  ".$msg);
-    }
-    $handle->send($msg.$self->{server}->{eol});
+    #if($self->{server}->{debug}){
+    #    $self->{server}->log_this("sending:  ".$msg);
+    #}
+    #$handle->send($msg.$self->{server}->{eol});
     $self->{server}->remove_user($handle);
     $self->{server}->log_this($data->{name}." has logged out");
 }

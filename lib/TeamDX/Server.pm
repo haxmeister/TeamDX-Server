@@ -127,6 +127,10 @@ sub broadcast {
                 $self->warn_this( "Removing " . $thisUser->{name} . " due to errors" );
                 $self->remove_user( $thisUser->{handle} );
             }
+        }elsif(! $thisUser->{isloggedin}){
+            $self->warn_this(
+                "Skipping ".$handle->peerhost().":".$handle->peerport()." (not yet logged in).."
+            );
         }
     }
 }
@@ -150,19 +154,24 @@ sub dispatch {
 }
 
 
-# accepts a handle and returns the username that it belongs too
-# if the handle doesn't match a user it returns an empty string
+# accepts a handle and returns the user object that it belongs too
+# if the handle doesn't match a user in the user list
+# it returns a user with the isloggedin key set to 0
 sub get_user_from_handle {
     my $self        = shift;
     my $this_handle = shift;
-    my $this_user   = '';
+    my $unlogged_user   = {
+        'isloggedin' => 0,
+    };
 
     foreach my $user ( @{$self->{users}} ) {
         if ( $user->{handle} == $this_handle ) {
-            $this_user = $user;
+            return $user;
         }
     }
-    return $this_user;
+
+    # this handle does not belong to a user in the user list
+    return $unlogged_user;
 }
 
 # accepts a name string as an argument and searches the user list
@@ -190,27 +199,31 @@ sub get_all_users {}
 
 
 
-# accepts a username
-# deletes username from user list and polling, also closes
+# accepts a handle
+# sets user as isloggedin = 0 and removes
+# user handle from polling, also closes
 # the user's socket, does not alert user of removal
 sub remove_user {
     my $self   = shift;
     my $handle = shift;
-    my @newUserList;
+    #my @newUserList;
 
     # remove handle from select polling
     $self->{poll}->remove( $handle );
 
+    # set user to loggedout
+    my $this_user = get_user_from_handle($handle);
+    $this_user->{isloggedin} = 0;
     # close connection
     $handle->close;
 
     # delete user from userlist
-    while (my $user = shift @{$self->{users}}){
-        unless ($user->{handle} == $handle){
-            push (@newUserList, $user);
-        }
-    }
-    push (@{$self->{users}}, @newUserList);
+    #while (my $user = shift @{$self->{users}}){
+        #unless ($user->{handle} == $handle){
+            #push (@newUserList, $user);
+        #}
+    #}
+    #push (@{$self->{users}}, @newUserList);
 }
 
 
