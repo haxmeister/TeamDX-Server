@@ -12,7 +12,7 @@ example:
 ```json
 {
   "serverAction":"sendall",
-  "clientAction":"whatever"
+  "clientAction":"whatever",
   "name":"Munny"
 }
 ```
