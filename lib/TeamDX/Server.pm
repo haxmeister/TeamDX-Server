@@ -163,16 +163,20 @@ sub get_user_from_handle {
     my $unlogged_user   = {
         'isloggedin' => 0,
     };
+
     if (defined $this_handle){
-	print "getting user from handle: $this_handle\n";
+        print "getting user from handle: $this_handle\n";
         foreach my $user ( @{$self->{users}} ) {
-	print Dumper $user;
-	print "\n\n";
-             if ( $user->{handle} == $this_handle ) {
+            print Dumper $user;
+            print "\n\n";
+            if ( $user->{handle} == $this_handle ) {
                   return $user;
-             }
+            }
         }
-    }else{print caller;}
+    }else{
+        print Dumper $this_handle;
+        print caller." <-- caller\n";;
+    }
 
     # this handle does not belong to a user in the user list
     return $unlogged_user;
@@ -216,7 +220,7 @@ sub remove_user {
     $self->{poll}->remove( $handle );
 
     # set user to loggedout
-	print "removing this $handle \n";
+    print "removing this $handle \n";
     my $this_user = get_user_from_handle($handle);
     $this_user->{isloggedin} = 0;
     # close connection
