@@ -179,9 +179,9 @@ sub get_user_from_handle {
         }
     }else{
         print Dumper $this_handle;
-        print caller." <-- caller\n";;
+        print caller." <-- caller\n";
     }
-
+    print Dumper $self->{users};
     # this handle does not belong to a user in the user list
     return $unlogged_user;
 }
