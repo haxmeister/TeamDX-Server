@@ -112,28 +112,27 @@ sub broadcast {
     my $thisUser;
     eval {$string = encode_json($data);1;} or return;
 
-    if (my @handles = $self->{poll}->can_write(0)  { #check for empty list
-        foreach my $handle (@handles){
-            print "finding user for broadcast\n";
-            $thisUser = $self->get_user_from_handle($handle);
+    foreach my $handle ( $self->{poll}->can_write(0) ) {
+        print "finding user for broadcast\n";
+        if (! $handle){print "no handle\n";}
+        $thisUser = $self->get_user_from_handle($handle);
 
-            # only broadcast to logged in users
-            if ($thisUser->{isloggedin}){
+        # only broadcast to logged in users
+        if ($thisUser->{isloggedin}){
 
-                if($self->{debug}){
-                    $self->log_this("broadcasting to ".$thisUser->{name}.":  ".$string);
-                }
-
-                # send to socket without error or remove the user and connection
-                unless ( eval { $handle->send( $string . $self->{eol} ); 1; } ) {
-                    $self->warn_this( "Removing " . $thisUser->{name} . " due to errors" );
-                    $self->remove_user( $thisUser->{handle} );
-                }
-            }elsif(! $thisUser->{isloggedin}){
-                $self->warn_this(
-                    "Skipping ".$handle->peerhost().":".$handle->peerport()." (not yet logged in).."
-                );
+            if($self->{debug}){
+                $self->log_this("broadcasting to ".$thisUser->{name}.":  ".$string);
             }
+
+            # send to socket without error or remove the user and connection
+            unless ( eval { $handle->send( $string . $self->{eol} ); 1; } ) {
+                $self->warn_this( "Removing " . $thisUser->{name} . " due to errors" );
+                $self->remove_user( $thisUser->{handle} );
+            }
+        }elsif(! $thisUser->{isloggedin}){
+            $self->warn_this(
+                "Skipping ".$handle->peerhost().":".$handle->peerport()." (not yet logged in).."
+            );
         }
     }
 }
