@@ -113,8 +113,6 @@ sub broadcast {
     eval {$string = encode_json($data);1;} or return;
 
     foreach my $handle ( $self->{poll}->can_write(0) ) {
-        print "finding user for broadcast\n";
-
         $thisUser = $self->get_user_from_handle($handle);
 
         # only broadcast to logged in users
@@ -165,24 +163,13 @@ sub get_user_from_handle {
     my $unlogged_user   = {
         'isloggedin' => 0,
     };
-    print "in sub\n";
-    print Dumper $this_handle;
-    if (defined $this_handle){
-        print "in if\n";
-        print "getting user from handle: $this_handle\n";
-        foreach my $user ( @{$self->{users}} ) {
-            print "in foreach\n";
-            print Dumper $user;
-            print "\n\n";
-            if ( $user->{handle} == $this_handle ) {
-                    print "user found\n";
-                  return $user;
-            }
+
+    foreach my $user ( @{$self->{users}} ) {
+        if ( $user->{handle} == $this_handle ) {
+            return $user;
         }
-    }else{
-        print Dumper $this_handle;
-        print caller." <-- caller\n";
     }
+
     # this handle does not belong to a user in the user list
     return $unlogged_user;
 }
@@ -219,25 +206,16 @@ sub get_all_users {}
 sub remove_user {
     my $self   = shift;
     my $handle = shift;
-    #my @newUserList;
-    print "remove_user has this handle: $handle \n ";
+
     # remove handle from select polling
     $self->{poll}->remove( $handle );
 
     # set user to loggedout
-    print "removing this $handle \n";
     my $this_user = $self->get_user_from_handle($handle);
     $this_user->{isloggedin} = 0;
+
     # close connection
     $handle->close;
-
-    # delete user from userlist
-    #while (my $user = shift @{$self->{users}}){
-        #unless ($user->{handle} == $handle){
-            #push (@newUserList, $user);
-        #}
-    #}
-    #push (@{$self->{users}}, @newUserList);
 }
 
 
