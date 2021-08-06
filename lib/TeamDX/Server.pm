@@ -163,13 +163,16 @@ sub get_user_from_handle {
     my $unlogged_user   = {
         'isloggedin' => 0,
     };
-
+    print "in sub\n";
     if (defined $this_handle){
+        print "in if\n";
         print "getting user from handle: $this_handle\n";
         foreach my $user ( @{$self->{users}} ) {
+            print "in foreach\n";
             print Dumper $user;
             print "\n\n";
             if ( $user->{handle} == $this_handle ) {
+                    print "user found\n";
                   return $user;
             }
         }
