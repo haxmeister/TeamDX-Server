@@ -112,26 +112,28 @@ sub broadcast {
     my $thisUser;
     eval {$string = encode_json($data);1;} or return;
 
-    foreach my $handle ( $self->{poll}->can_write(0) ) {
-        print "finding user for broadcast\n";
-        $thisUser = $self->get_user_from_handle($handle);
+    if (my @handles = $self->{poll}->can_write(0)  { #check for empty list
+        foreach my $handle (@handles){
+            print "finding user for broadcast\n";
+            $thisUser = $self->get_user_from_handle($handle);
 
-        # only broadcast to logged in users
-        if ($thisUser->{isloggedin}){
+            # only broadcast to logged in users
+            if ($thisUser->{isloggedin}){
 
-            if($self->{debug}){
-                $self->log_this("broadcasting to ".$thisUser->{name}.":  ".$string);
+                if($self->{debug}){
+                    $self->log_this("broadcasting to ".$thisUser->{name}.":  ".$string);
+                }
+
+                # send to socket without error or remove the user and connection
+                unless ( eval { $handle->send( $string . $self->{eol} ); 1; } ) {
+                    $self->warn_this( "Removing " . $thisUser->{name} . " due to errors" );
+                    $self->remove_user( $thisUser->{handle} );
+                }
+            }elsif(! $thisUser->{isloggedin}){
+                $self->warn_this(
+                    "Skipping ".$handle->peerhost().":".$handle->peerport()." (not yet logged in).."
+                );
             }
-
-            # send to socket without error or remove the user and connection
-            unless ( eval { $handle->send( $string . $self->{eol} ); 1; } ) {
-                $self->warn_this( "Removing " . $thisUser->{name} . " due to errors" );
-                $self->remove_user( $thisUser->{handle} );
-            }
-        }elsif(! $thisUser->{isloggedin}){
-            $self->warn_this(
-                "Skipping ".$handle->peerhost().":".$handle->peerport()." (not yet logged in).."
-            );
         }
     }
 }
@@ -181,7 +183,6 @@ sub get_user_from_handle {
         print Dumper $this_handle;
         print caller." <-- caller\n";
     }
-    print Dumper @{$self->{users}};
     # this handle does not belong to a user in the user list
     return $unlogged_user;
 }
