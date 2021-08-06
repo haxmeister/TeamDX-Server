@@ -166,6 +166,7 @@ sub get_user_from_handle {
         'isloggedin' => 0,
     };
     print "in sub\n";
+    print Dumper $this_handle;
     if (defined $this_handle){
         print "in if\n";
         print "getting user from handle: $this_handle\n";
@@ -219,9 +220,7 @@ sub remove_user {
     my $self   = shift;
     my $handle = shift;
     #my @newUserList;
-    print "remove_user has this handle: ";
-    print Dumper $handle;
-    print "\n";
+    print "remove_user has this handle: $handle \n ";
     # remove handle from select polling
     $self->{poll}->remove( $handle );
 
