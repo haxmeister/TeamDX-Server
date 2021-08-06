@@ -226,7 +226,7 @@ sub remove_user {
 
     # set user to loggedout
     print "removing this $handle \n";
-    my $this_user = get_user_from_handle($handle);
+    my $this_user = $self->get_user_from_handle($handle);
     $this_user->{isloggedin} = 0;
     # close connection
     $handle->close;
