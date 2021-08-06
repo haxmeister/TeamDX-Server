@@ -89,7 +89,7 @@ sub start {
 
                 }
             }
-        }else{print "no readables \n";}
+        }else{sleep(1);}
 
     }
         #sleep(1);
