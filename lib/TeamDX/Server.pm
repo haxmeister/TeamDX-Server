@@ -70,7 +70,7 @@ sub start {
     while (1) {
 
         # deal with sockets that are ready to be read
-        if ( my @readables = $self->{poll}->can_read(1) ) {
+        if ( my @readables = $self->{poll}->can_read(0) ) {
             foreach my $handle (@readables) {
 
                 # catch new client connections
@@ -89,7 +89,8 @@ sub start {
 
                 }
             }
-        }
+        }else{print "no readables \n";}
+
     }
         #sleep(1);
 }
