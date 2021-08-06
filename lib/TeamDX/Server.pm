@@ -113,6 +113,7 @@ sub broadcast {
     eval {$string = encode_json($data);1;} or return;
 
     foreach my $handle ( $self->{poll}->can_write(0) ) {
+        print "finding user for broadcast\n";
         $thisUser = $self->get_user_from_handle($handle);
 
         # only broadcast to logged in users
