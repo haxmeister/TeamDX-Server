@@ -114,7 +114,7 @@ sub broadcast {
 
     foreach my $handle ( $self->{poll}->can_write(0) ) {
         print "finding user for broadcast\n";
-        if (! $handle){print "no handle\n";}
+
         $thisUser = $self->get_user_from_handle($handle);
 
         # only broadcast to logged in users
@@ -219,7 +219,9 @@ sub remove_user {
     my $self   = shift;
     my $handle = shift;
     #my @newUserList;
-
+    print "remove_user has this handle: ";
+    print Dumper $handle;
+    print "\n";
     # remove handle from select polling
     $self->{poll}->remove( $handle );
 
