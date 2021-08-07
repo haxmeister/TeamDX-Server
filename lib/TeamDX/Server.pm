@@ -70,7 +70,7 @@ sub start {
     while (1) {
 
         # deal with sockets that are ready to be read
-        if ( my @readables = $self->{poll}->can_read(0) ) {
+        if ( my @readables = $self->{poll}->can_read(undef) ) {
             foreach my $handle (@readables) {
 
                 # catch new client connections
@@ -89,7 +89,7 @@ sub start {
 
                 }
             }
-        }else{sleep(1);}
+        }
 
     }
         #sleep(1);
@@ -102,6 +102,7 @@ sub new_client {
         #'handle' => $sock,
     #});
     #push @{$self->{users}}, $user;
+    $sock->autoflush(1);
     $self->{poll}->add($sock);
     $self->log_this( "New client connected at " . $sock->peerhost . ":" . $sock->peerport );
 }
