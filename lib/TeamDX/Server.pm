@@ -70,6 +70,7 @@ sub start {
     while (1) {
 
         # deal with sockets that are ready to be read
+        $! = 0;
         if ( my @readables = $self->{poll}->can_read(5) ) {
             foreach my $handle (@readables) {
 
@@ -90,7 +91,7 @@ sub start {
                 }
             }
         }
-
+        print "error: $!\n";
         # cleanup dead connections
         $self->maintenance();
 
