@@ -72,6 +72,7 @@ sub start {
         # deal with sockets that are ready to be read
         $! = 0;
         if ( my @readables = $self->{poll}->can_read(5) ) {
+            $self->debug_msg("no can_read readables");
             foreach my $handle (@readables) {
 
                 # catch new client connections
@@ -82,17 +83,20 @@ sub start {
                 # receive messages from already connected clients
                 else{
 
-                    $handle->recv( my $data, 10024);
-                    if($self->{debug}){
-                        $self->log_this("recieved: $data");
+                    $data = <$handle>;
+                    #$handle->recv( my $data, 10024);
+                    if ($data){
+                        $self->debug_msg("recieved: $data");
+                        chomp($data);
+                        $self->dispatch( $handle, $data );
+                    }else{
+                        $self->debug_msg("recieved empty: $data");
                     }
-                    chomp($data);
-                    $self->dispatch( $handle, $data );
 
                 }
             }
         }
-        $self->warn_this("can_read error: $!");
+        $self->debug("can_read error: $!");
         # cleanup dead connections
         $self->maintenance();
 
@@ -103,6 +107,7 @@ sub start {
 sub new_client {
     my $self = shift;
     my $sock = shift;
+    $self->debug_msg("new_client");
     #my $user = TeamDX::User->new({
         #'handle' => $sock,
     #});
@@ -117,6 +122,7 @@ sub broadcast {
     my $data   = shift;
     my $string;
     my $thisUser;
+    $self->debug_msg("broadcast");
     eval {$string = encode_json($data);1;} or return;
 
     foreach my $handle ( $self->{poll}->can_write(0) ) {
@@ -148,7 +154,7 @@ sub dispatch {
     my $msg_string = shift;
     my $data;
     my $serverAction;
-
+    $self->debug_msg("dispatch");
     eval { $data = decode_json($msg_string); 1; };
     $data or return;
     next unless defined( $data->{serverAction} );
@@ -167,6 +173,8 @@ sub dispatch {
 sub get_user_from_handle {
     my $self        = shift;
     my $this_handle = shift;
+
+    $self->debug_msg("Get_user_from_handle");
     my $unlogged_user   = {
         'isloggedin' => 0,
     };
@@ -188,6 +196,7 @@ sub get_user_from_name {
     my $self     = shift;
     my $this_name = shift;
 
+    $self->debug_msg("get_user_from_name");
     foreach my $user ( @{$self->{users}} ){
         if ($this_name eq $user->{name}){
             return $user;
@@ -206,6 +215,7 @@ sub remove_user {
     my $self   = shift;
     my $handle = shift;
 
+    $self->debug_msg("remove_user");
     # remove handle from select polling
     $self->{poll}->remove( $handle );
 
@@ -254,11 +264,11 @@ sub timestamp {
 
 sub maintenance{
     my $self = shift;
-    $self->warn_this('Server Maintenance');
+    $self->debug_msg('Server Maintenance');
     # find and remove handles with exceptions
     foreach my $handle ( $self->{poll}->has_exception(0) ) {
         $self->remove_user($handle);
-        $self->warn_this("removed handle with exceptions")
+        $self->debug_msg("removed handle with exceptions")
     }
 
     # find and remove handles not associated with a user
@@ -266,7 +276,7 @@ sub maintenance{
         if ($user->{handle}){
             if(! $self->{poll}->exists($user->{handle}) ){
                 $self->remove_user($user->{handle});
-                $self->warn_this("removed unassociated handle");
+                $self->debug_msg("removed unassociated handle");
             }
         }
     }
