@@ -251,7 +251,7 @@ sub timestamp {
 
 sub maintenance{
     my $self = shift;
-
+    $self->warn_this('Server Maintenance');
     # find and remove handles with exceptions
     foreach my $handle ( $self->{poll}->has_exception(0) ) {
         $self->remove_user($handle);
@@ -260,7 +260,8 @@ sub maintenance{
     # find and remove handles not associated with a user
     foreach my $user (@{ $self->{users} }){
         if ($user->{handle}){
-            $self->{poll}->exists($user) || $self->remove_user($user->{handle});
+            #$self->{poll}->exists($user) || $self->remove_user($user->{handle});
+            print $user->{handle}." what is this?\n";
         }
     }
 
