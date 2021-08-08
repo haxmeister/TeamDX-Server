@@ -288,8 +288,8 @@ sub debug_msg{
     my $self = shift;
     my $msg = shift;
 
-    if($self->{server}->{debug}){
-        $self->{server}->log_this($msg);
+    if($self->{debug}){
+        $self->log_this($msg);
     }
 }
 1;
