@@ -72,7 +72,6 @@ sub start {
 
         # deal with sockets that are ready to be read
         my @readables = $self->{poll}->can_read(5);
-        $self->debug_msg("my readables @readables");
 
         foreach my $handle (@readables) {
 
@@ -104,11 +103,7 @@ sub start {
 sub new_client {
     my $self = shift;
     my $sock = shift;
-    $self->debug_msg("new_client");
-    #my $user = TeamDX::User->new({
-        #'handle' => $sock,
-    #});
-    #push @{$self->{users}}, $user;
+
     $sock->autoflush(1);
     $self->{poll}->add($sock);
     $self->log_this( "New client connected at " . $sock->peerhost . ":" . $sock->peerport );
@@ -119,7 +114,7 @@ sub broadcast {
     my $data   = shift;
     my $string;
     my $thisUser;
-    $self->debug_msg("broadcast");
+
     eval {$string = encode_json($data);1;} or return;
 
     foreach my $handle ( $self->{poll}->can_write(0) ) {
@@ -151,7 +146,7 @@ sub dispatch {
     my $msg_string = shift;
     my $data;
     my $serverAction;
-    $self->debug_msg("dispatch");
+
     eval { $data = decode_json($msg_string); 1; };
     $data or return;
     next unless defined( $data->{serverAction} );
@@ -171,7 +166,6 @@ sub get_user_from_handle {
     my $self        = shift;
     my $this_handle = shift;
 
-    $self->debug_msg("Get_user_from_handle");
     my $unlogged_user   = {
         'isloggedin' => 0,
     };
@@ -193,7 +187,6 @@ sub get_user_from_name {
     my $self     = shift;
     my $this_name = shift;
 
-    $self->debug_msg("get_user_from_name");
     foreach my $user ( @{$self->{users}} ){
         if ($this_name eq $user->{name}){
             return $user;
@@ -212,7 +205,6 @@ sub remove_user {
     my $self   = shift;
     my $handle = shift;
 
-    $self->debug_msg("remove_user");
     # remove handle from select polling
     $self->{poll}->remove( $handle );
 
@@ -261,11 +253,11 @@ sub timestamp {
 
 sub maintenance{
     my $self = shift;
-    $self->debug_msg('Server Maintenance');
+
     # find and remove handles with exceptions
     foreach my $handle ( $self->{poll}->has_exception(0) ) {
         $self->remove_user($handle);
-        $self->debug_msg("removed handle with exceptions")
+        $self->log_this("Maint: removed handle with exceptions")
     }
 
     # find and remove handles not associated with a user
@@ -273,7 +265,7 @@ sub maintenance{
         if ($user->{handle}){
             if(! $self->{poll}->exists($user->{handle}) ){
                 $self->remove_user($user->{handle});
-                $self->debug_msg("removed unassociated handle");
+                $self->log_this("Maint: removed an unassociated handle");
             }
         }
     }
