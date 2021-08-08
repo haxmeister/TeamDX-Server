@@ -264,7 +264,7 @@ sub maintenance{
     # find and remove handles not associated with a user
     foreach my $user (@{ $self->{users} }){
         if ($user->{handle}){
-            if(! $self->{poll}->exists($user->{handle}){
+            if(! $self->{poll}->exists($user->{handle}) ){
                 $self->remove_user($user->{handle});
                 $self->warn_this("removed unassociated handle");
         }
