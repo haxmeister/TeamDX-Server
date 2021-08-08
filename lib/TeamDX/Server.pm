@@ -258,7 +258,7 @@ sub maintenance{
     }
 
     # find and remove handles not associated with a user
-    foreach my $user ($self->{users}){
+    foreach my $user (@{ $self->{users} }){
         if ($user->{handle}){
             $self->{poll}->exists($user) || $self->remove_user($user->{handle});
         }
