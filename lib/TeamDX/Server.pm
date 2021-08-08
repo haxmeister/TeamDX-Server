@@ -70,7 +70,7 @@ sub start {
     while (1) {
 
         # deal with sockets that are ready to be read
-        if ( my @readables = $self->{poll}->can_read(undef) ) {
+        if ( my @readables = $self->{poll}->can_read(5) ) {
             foreach my $handle (@readables) {
 
                 # catch new client connections
@@ -90,6 +90,9 @@ sub start {
                 }
             }
         }
+
+        # cleanup dead connections
+        $self->maintenance();
 
     }
         #sleep(1);
@@ -254,10 +257,19 @@ sub timestamp {
     return "[$month/$mday/$year $hour:$min:$sec]";
 }
 
-sub sendto{
+sub maintenance{
     my $self = shift;
-    my $handle = shift;
-    my $data = shift;
+
+    # find and remove handles with exceptions
+    foreach my $handle ( $self->{poll}->has_exceptions(0) ) {
+        $self->remove_user($handle);
+    }
+
+    # find and remove handles not associated with a user
+    foreach my $user ($self->{users}){
+        $self->{poll}->exists($user) || $self->remove_user($user->{handle});
+    }
+
 
 }
 1;
