@@ -65,44 +65,40 @@ sub init{
 
 sub start {
     my $self = shift;
-    my $data = '';
+    my $data;
+    my $bytes;
 
     while (1) {
 
         # deal with sockets that are ready to be read
-        $! = 0;
-        if ( my @readables = $self->{poll}->can_read(5) ) {
-            if($!){die "can_read error: $!";}
-            $self->debug_msg("my readables @readables");
-            foreach my $handle (@readables) {
+        my @readables = $self->{poll}->can_read(5);
+        $self->debug_msg("my readables @readables");
 
-                # catch new client connections
-                if ( $handle == $self->{sock} ) {
-                    $self->new_client( $self->{sock}->accept );
-                }
+        foreach my $handle (@readables) {
+
+            # catch new client connections
+            if ( $handle == $self->{sock} ) {
+                $self->new_client( $self->{sock}->accept );
+            }else{
 
                 # receive messages from already connected clients
-                else{
+                $bytes = sysread($handle, $data, 5000000);
 
-                    $data = <$handle>;
-                    #$handle->recv( my $data, 10024);
-                    if ($data){
-                        $self->debug_msg("recieved: $data");
-                        chomp($data);
-                        $self->dispatch( $handle, $data );
-                    }else{
-                        $self->debug_msg("recieved empty: $data");
-                    }
+                if ($bytes > 0){
+                    chomp($data);
+                    $self->multi_line_dispatch($handle, $data);
 
                 }
+
+                if (!$bytes){
+                    $self->remove_user($handle);
+                }
+
             }
         }
-        $self->debug_msg("can_read error: $!");
-        # cleanup dead connections
-        $self->maintenance();
 
+    $self->maintenance();
     }
-        sleep(1);
 }
 
 sub new_client {
@@ -291,6 +287,18 @@ sub debug_msg{
 
     if($self->{debug}){
         $self->log_this($msg);
+    }
+}
+
+sub multi_line_dispatch{
+    my $self = shift;
+    my $handle = shift;
+    my $data = shift;
+
+    my @lines = split( /\r\n/, $data);
+    foreach my $line (@lines){
+        chomp($line);
+        $self->dispatch($handle, $line);
     }
 }
 1;
