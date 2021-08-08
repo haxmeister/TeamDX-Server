@@ -65,7 +65,7 @@ sub init{
 
 sub start {
     my $self = shift;
-    my $data;
+    my $data = '';
 
     while (1) {
 
