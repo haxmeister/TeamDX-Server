@@ -72,7 +72,7 @@ sub start {
         # deal with sockets that are ready to be read
         $! = 0;
         if ( my @readables = $self->{poll}->can_read(5) ) {
-            $self->debug_msg("no can_read readables");
+            $self->debug_msg("my readables @readables");
             foreach my $handle (@readables) {
 
                 # catch new client connections

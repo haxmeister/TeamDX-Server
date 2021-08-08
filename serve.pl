@@ -17,7 +17,7 @@ $server->start();
 
 
 sub signal_handler {
-    $server->{sock}->close;
-    die "Caught interrupt, $! \n";
-    sleep(1);
+
+    die "Caught signal, $! \n";
+
 }
