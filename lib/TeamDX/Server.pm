@@ -96,7 +96,7 @@ sub start {
                 }
             }
         }
-        $self->debug("can_read error: $!");
+        $self->debug_msg("can_read error: $!");
         # cleanup dead connections
         $self->maintenance();
 
