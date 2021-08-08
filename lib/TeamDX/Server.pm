@@ -80,18 +80,18 @@ sub start {
                 }
 
                 # receive messages from already connected clients
-                elsif($data = <$handle>){
+                elsif($handle->recv( my $data, 10024 )){
                     if($self->{debug}){
                         $self->log_this("recieved: $data");
                     }
-                # $handle->recv( my $data, 2024 );
+                # ;
                     chomp($data);
                     $self->dispatch( $handle, $data );
 
                 }
             }
         }
-        print "error: $!\n";
+        $self->warn_this("can_read error: $!");
         # cleanup dead connections
         $self->maintenance();
 
@@ -261,7 +261,7 @@ sub maintenance{
     # find and remove handles not associated with a user
     foreach my $user (@{ $self->{users} }){
         if ($user->{handle}){
-            #$self->{poll}->exists($user) || $self->remove_user($user->{handle});
+            $self->{poll}->exists($user->{handle}) || $self->remove_user($user->{handle});
             print $user->{handle}." what is this?\n";
         }
     }
