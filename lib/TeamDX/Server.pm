@@ -267,6 +267,7 @@ sub maintenance{
             if(! $self->{poll}->exists($user->{handle}) ){
                 $self->remove_user($user->{handle});
                 $self->warn_this("removed unassociated handle");
+            }
         }
     }
 
