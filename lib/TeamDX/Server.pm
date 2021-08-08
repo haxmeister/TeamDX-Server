@@ -283,5 +283,14 @@ sub maintenance{
 
 
 }
+
+sub debug_msg{
+    my $self = shift;
+    my $msg = shift;
+
+    if($self->{server}->{debug}){
+        $self->{server}->log_this($msg);
+    }
+}
 1;
 
