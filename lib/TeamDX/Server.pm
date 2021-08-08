@@ -212,6 +212,7 @@ sub remove_user {
     # set user to loggedout
     my $this_user = $self->get_user_from_handle($handle);
     $this_user->{isloggedin} = 0;
+    $this_user->{handle} = '';
 
     # close connection
     $handle->close;
@@ -257,13 +258,15 @@ sub maintenance{
     # find and remove handles with exceptions
     foreach my $handle ( $self->{poll}->has_exception(0) ) {
         $self->remove_user($handle);
+        $self->warn_this("removed handle with exceptions")
     }
 
     # find and remove handles not associated with a user
     foreach my $user (@{ $self->{users} }){
         if ($user->{handle}){
-            $self->{poll}->exists($user->{handle}) || $self->remove_user($user->{handle});
-            print $user->{handle}." what is this?\n";
+            if(! $self->{poll}->exists($user->{handle}){
+                $self->remove_user($user->{handle});
+                $self->warn_this("removed unassociated handle");
         }
     }
 

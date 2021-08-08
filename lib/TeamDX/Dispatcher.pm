@@ -35,9 +35,8 @@ sub login {
             $msg = '{"clientAction":"login","result":1}';
             $handle->send(  $msg. $self->{server}->{eol} );
 
-            if($self->{server}->{debug}){
-                $self->{server}->log_this("sending:  ".$msg);
-            }
+            $self->debug_msg("sending:  ".$msg);
+
             $self->{server}->log_this( $this_user->{name}." has logged back in..");
         }else{
             $msg = '{"clientAction":"login","result":1}';
@@ -46,9 +45,9 @@ sub login {
                 'name'       => $data->{name},
                 'isloggedin' => 1,
             });
-            if($self->{server}->{debug}){
-                $self->{server}->log_this("sending:  ".$msg);
-            }
+
+            $self->debug_msg("sending:  ".$msg);
+
             push @{$self->{server}->{users}}, $user;
             $handle->send($msg.$self->{server}->{eol});
             $self->{server}->log_this( $user->{name}." has logged in..");
@@ -57,9 +56,7 @@ sub login {
         $msg = '{"clientAction":"login","result":0, "error":"Can\'t log in without player name"}';
         $handle->send($msg.$self->{server}->{eol});
 
-        if($self->{server}->{debug}){
-            $self->{server}->log_this("sending:  ".$msg);
-        }
+        $self->debug_msg("sending:  ".$msg);
     }
 }
 
@@ -101,5 +98,12 @@ sub get_logged_in_users{
     }
 }
 
+sub debug_msg{
+    my $self = shift;
+    my $msg = shift;
 
+    if($self->{server}->{debug}){
+        $self->{server}->log_this($msg);
+    }
+}
 1;
