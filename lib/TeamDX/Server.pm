@@ -72,7 +72,7 @@ sub start {
         # deal with sockets that are ready to be read
         $! = 0;
         if ( my @readables = $self->{poll}->can_read(5) ) {
-            $self->debug_msg("can_read error $!");
+            if($!){die "can_read error: $!";}
             $self->debug_msg("my readables @readables");
             foreach my $handle (@readables) {
 
