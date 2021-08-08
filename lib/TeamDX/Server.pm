@@ -80,11 +80,12 @@ sub start {
                 }
 
                 # receive messages from already connected clients
-                elsif($handle->recv( my $data, 10024 )){
+                else{
+
+                    $handle->recv( my $data, 10024)
                     if($self->{debug}){
                         $self->log_this("recieved: $data");
                     }
-                # ;
                     chomp($data);
                     $self->dispatch( $handle, $data );
 
