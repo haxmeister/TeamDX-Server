@@ -195,14 +195,6 @@ sub get_user_from_name {
     }
 }
 
-# returns a list of all users that are logged in
-sub get_loggedin_users {}
-
-# returns a
-sub get_all_users {}
-
-
-
 
 # accepts a handle
 # sets user as isloggedin = 0 and removes
@@ -267,7 +259,9 @@ sub maintenance{
 
     # find and remove handles not associated with a user
     foreach my $user ($self->{users}){
-        $self->{poll}->exists($user) || $self->remove_user($user->{handle});
+        if ($user->{handle}){
+            $self->{poll}->exists($user) || $self->remove_user($user->{handle});
+        }
     }
 
 

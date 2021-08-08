@@ -101,10 +101,5 @@ sub get_logged_in_users{
     }
 }
 
-sub get_known_users{
-    my $self   = shift;
-    my $data   = shift;
-    my $handle = shift;
 
-}
 1;
