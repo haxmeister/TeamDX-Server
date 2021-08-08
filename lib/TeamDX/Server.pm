@@ -261,7 +261,7 @@ sub maintenance{
     my $self = shift;
 
     # find and remove handles with exceptions
-    foreach my $handle ( $self->{poll}->has_exceptions(0) ) {
+    foreach my $handle ( $self->{poll}->has_exception(0) ) {
         $self->remove_user($handle);
     }
 
