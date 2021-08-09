@@ -7,14 +7,14 @@ use lib "$FindBin::Bin/lib";
 use TeamDX::Server;
 use sigtrap qw/handler signal_handler normal-signals/;
 
-
-my $server = TeamDX::Server->new({
-    'server_port' => 3232,
-    'debug'       => 1,
-});
+my $server = TeamDX::Server->new(
+    {
+        'server_port' => 3232,
+        'debug'       => 1,
+    }
+);
 
 $server->start();
-
 
 sub signal_handler {
 

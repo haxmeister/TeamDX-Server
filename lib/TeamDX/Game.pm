@@ -17,6 +17,6 @@ sub new {
     return $self;
 }
 
-sub _init{
+sub _init {
     my $self = shift;
 }
