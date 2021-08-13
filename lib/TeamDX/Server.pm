@@ -76,7 +76,7 @@ sub start {
         foreach my $handle (@readables) {
 
             # catch new client connections
-            if ( $handle == $self->{sock} ) {
+            if ( $handle eq $self->{sock} ) {
                 $self->new_client( $self->{sock}->accept );
             }
             else {
@@ -168,7 +168,7 @@ sub get_user_from_handle {
     my $unlogged_user = { 'isloggedin' => 0, };
 
     foreach my $user ( @{ $self->{users} } ) {
-        if ( $user->{handle} == $this_handle ) {
+        if ( $user->{handle} eq $this_handle ) {
             return $user;
         }
     }
