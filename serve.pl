@@ -5,7 +5,6 @@ use warnings;
 use FindBin;
 use lib "$FindBin::Bin/lib";
 use TeamDX::Server;
-use sigtrap qw/handler signal_handler normal-signals/;
 
 my $server = TeamDX::Server->new(
     {
@@ -16,8 +15,5 @@ my $server = TeamDX::Server->new(
 
 $server->start();
 
-sub signal_handler {
 
-    die "Caught signal, $! \n";
 
-}

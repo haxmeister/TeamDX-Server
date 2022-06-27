@@ -1,50 +1,61 @@
 package TeamDX::Server;
 
 use strict;
+use JSON;
 use warnings;
 use IO::Socket::INET;
-use IO::Select;
-use JSON;
+use IO::Socket;
+use IO::Multiplex;
 use Term::ANSIColor;
 use TeamDX::Dispatcher;
 use TeamDX::User;
 use Data::Dumper;
-$| = 1;
-
-# no server crashes due to sigpipe (client closes unexpectedly)
-$SIG{'PIPE'} = 'IGNORE';
 
 sub new {
     my ( $class, $args ) = @_;
     my $self = bless {
+        'mux'         => IO::Multiplex->new(),
         'server_port' => $args->{'server_port'},
         'debug'       => $args->{'debug'},
         'dispatch'    => undef,
-        'poll'        => undef,
         'json'        => undef,
-        'users'       => [],
-        'sock'        => undef,
+        'users'       => {},
         'eol'         => "\r\n",
-        'recBuf'      => undef,
     }, $class;
 
-    $self->init();
+    # prepare the dispatcher to manage messages
+    $self->{dispatch} = TeamDX::Dispatcher->new( { 'server' => $self, } ) || die $!;
+    print"dispatcher initialized\n";
+
+    # make a json translator object
+    $self->{json} = JSON->new();
+    print"json initialized\n";
+    return $self;
+
 }
 
-sub init {
+# mux_connection is called when a new connection is accepted.
+sub mux_connection {
+    my $self = shift;
+    my $mux  = shift;
+    my $fh   = shift;
+
+    # Construct a new User object
+    my $newUser = TeamDX::User->new(
+        'server' => $self,
+        'mux'    => $mux,
+        'fh'     => $fh,
+    );
+
+    # Register this User object in the main list of Users
+    $self->{users}{$newUser} = $newUser;
+    $self->log_this( "New client connected at " . $fh->peerhost . ":" . $fh->peerport );
+}
+
+sub listen_on_port{
     my $self = shift;
 
-    # prepare the dispatcher to manage messages
-    $self->{dispatch} = TeamDX::Dispatcher->new( { 'server' => $self, } ) || die $!,
-
-      # make a json translator object
-      $self->{json} = JSON->new();
-
-    # make a select object to allow for async polling of sockets
-    $self->{poll} = IO::Select->new();
-
-    # start listening on the port
-    $self->{sock} = IO::Socket::INET->new(
+    my $socket = IO::Socket::INET->new(
         Listen    => 5,
         LocalAddr => '0.0.0.0',
         LocalPort => $self->{'server_port'},
@@ -53,165 +64,53 @@ sub init {
         Blocking  => 0,
     ) || die "cannot create socket $!";
 
-    # turn on autoflush (no buffering on the socket)
-    $self->{sock}->autoflush(1);
+    print "Listening on port ".$self->{'server_port'}."..\n";
+    # setup multiplexer to watch server socket for events
+    $self->{mux}->listen($socket);
 
-    # add our listening socket to select polling also
-    $self->{poll}->add( $self->{sock} );
-
-    $self->log_this("Listening for new connections on port $self->{server_port}");
-    return $self;
+    # set this package as a place to look for mux callbacks
+    $self->{mux}->set_callback_object($self);
 }
 
-sub start {
+sub start{
     my $self = shift;
-    my $data;
-    my $bytes;
+    print "in start method\n";
+    #open connection and start listening
+    $self->listen_on_port();
 
-    while (1) {
-
-        # deal with sockets that are ready to be read
-        my @readables = $self->{poll}->can_read(5);
-
-        foreach my $handle (@readables) {
-
-            # catch new client connections
-            if ( $handle eq $self->{sock} ) {
-                $self->new_client( $self->{sock}->accept );
-            }
-            else {
-
-                # receive messages from already connected clients
-                $bytes = sysread( $handle, $data, 5000000 );
-
-                if ( $bytes > 0 ) {
-                    chomp($data);
-                    $self->multi_line_dispatch( $handle, $data );
-
-                }
-
-                if ( !$bytes ) {
-                    $self->remove_user($handle);
-                }
-
-            }
-        }
-
-        $self->maintenance();
-    }
+    #start multiplexer loop
+    $self->{mux}->loop;
 }
 
-sub new_client {
-    my $self = shift;
-    my $sock = shift;
-
-    $sock->autoflush(1);
-    $self->{poll}->add($sock);
-    $self->log_this( "New client connected at " . $sock->peerhost . ":" . $sock->peerport );
-}
-
+# accepts a hashref and sends it to all users as json msg
 sub broadcast {
     my $self = shift;
     my $data = shift;
-    my $string;
-    my $thisUser;
+    my $string = encode_json($data);
 
-    eval { $string = encode_json($data); 1; } or return;
+    foreach my $user ( $self->userlist() ) {
 
-    foreach my $handle ( $self->{poll}->can_write(0) ) {
-        $thisUser = $self->get_user_from_handle($handle);
-
-        # only broadcast to logged in users
-        if ( $thisUser->{isloggedin} ) {
-
-            if ( $self->{debug} ) {
-                $self->log_this( "broadcasting to " . $thisUser->{name} . ":  " . $string );
-            }
-
-            # send to socket without error or remove the user and connection
-            unless ( eval { $handle->send( $string . $self->{eol} ); 1; } ) {
-                $self->warn_this( "Removing " . $thisUser->{name} . " due to errors" );
-                $self->remove_user( $thisUser->{handle} );
-            }
+        # log debugging messages
+        if ( $self->{debug} ) {
+            $self->log_this( "broadcasting to " . $user->{name} . ":  " . $string );
         }
-        elsif ( !$thisUser->{isloggedin} ) {
-            $self->warn_this( "Skipping " . $handle->peerhost() . ":" . $handle->peerport() . " (not yet logged in).." );
-        }
+
+        # send to socket without error or remove the user and connection
+        $user->{fh}->send ( encode_json($data)."\r\n");
+
     }
 }
 
-sub dispatch {
-    my $self       = shift;
-    my $handle     = shift;
-    my $msg_string = shift;
-    my $data;
-    my $serverAction;
-
-    eval { $data = decode_json($msg_string); 1; };
-    $data or return;
-    next unless defined( $data->{serverAction} );
-
-    $serverAction = $data->{serverAction};
-
-    if ( $self->{dispatch}->can($serverAction) ) {
-        $self->{dispatch}->$serverAction( $data, $handle );
-    }
+sub userlist{
+    my $self = shift;
+    return keys( %{ $self->{'users'} } );
 }
 
-# accepts a handle and returns the user object that it belongs too
-# if the handle doesn't match a user in the user list
-# it returns a user with the isloggedin key set to 0
-sub get_user_from_handle {
-    my $self        = shift;
-    my $this_handle = shift;
+sub remove_user{
+    my $self = shift;
+    my $user = shift;
 
-    my $unlogged_user = { 'isloggedin' => 0, };
-
-    foreach my $user ( @{ $self->{users} } ) {
-        if ( $user->{handle} eq $this_handle ) {
-            return $user;
-        }
-    }
-
-    # this handle does not belong to a user in the user list
-    return $unlogged_user;
-}
-
-# accepts a name string as an argument and searches the user list
-# returns a ref to a user object that has that name
-# returns an empty string if none are found
-sub get_user_from_name {
-    my $self      = shift;
-    my $this_name = shift;
-
-    foreach my $user ( @{ $self->{users} } ) {
-        if ( $this_name eq $user->{name} ) {
-            return $user;
-        }
-        else {
-            return '';
-        }
-    }
-}
-
-# accepts a handle
-# sets user as isloggedin = 0 and removes
-# user handle from polling, also closes
-# the user's socket, does not alert user of removal
-sub remove_user {
-    my $self   = shift;
-    my $handle = shift;
-
-    # remove handle from select polling
-    $self->{poll}->remove($handle);
-
-    # set user to loggedout
-    my $this_user = $self->get_user_from_handle($handle);
-    $this_user->{isloggedin} = 0;
-    $this_user->{handle}     = '';
-
-    # close connection
-    $handle->close;
+    delete $self->{users}{$user} if exists $self->{users}{$user};
 }
 
 sub log_this {
@@ -247,26 +146,6 @@ sub timestamp {
     return "[$month/$mday/$year $hour:$min:$sec]";
 }
 
-sub maintenance {
-    my $self = shift;
-
-    # find and remove handles with exceptions
-    foreach my $handle ( $self->{poll}->has_exception(0) ) {
-        $self->remove_user($handle);
-        $self->log_this("Maint: removed handle with exceptions");
-    }
-
-    # find and remove handles not associated with a user
-    foreach my $user ( @{ $self->{users} } ) {
-        if ( $user->{handle} ) {
-            if ( !$self->{poll}->exists( $user->{handle} ) ) {
-                $self->remove_user( $user->{handle} );
-                $self->log_this("Maint: removed an unassociated handle");
-            }
-        }
-    }
-
-}
 
 sub debug_msg {
     my $self = shift;
@@ -277,17 +156,6 @@ sub debug_msg {
     }
 }
 
-sub multi_line_dispatch {
-    my $self   = shift;
-    my $handle = shift;
-    my $data   = shift;
-
-    my @lines = split( /\r\n/, $data );
-    foreach my $line (@lines) {
-        chomp($line);
-        $self->dispatch( $handle, $line );
-    }
-}
 
 1;
 
