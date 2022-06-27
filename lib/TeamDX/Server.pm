@@ -41,11 +41,11 @@ sub mux_connection {
     my $fh   = shift;
 
     # Construct a new User object
-    my $newUser = TeamDX::User->new(
+    my $newUser = TeamDX::User->new({
         'server' => $self,
         'mux'    => $mux,
         'fh'     => $fh,
-    );
+    });
 
     # Register this User object in the main list of Users
     $self->{users}{$newUser} = $newUser;
