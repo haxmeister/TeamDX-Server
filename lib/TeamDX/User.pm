@@ -55,7 +55,7 @@ sub process_command {
     if ( eval{$data = decode_json($cmd);1;} ){
 
         # if there's no action in the message then drop it and move on
-        return unless defined( $data->{action} );
+        return unless defined( $data->{serverAction} );
 
         # look for rpc by the same name as serveraction field
         my $serverAction = $data->{serverAction};
