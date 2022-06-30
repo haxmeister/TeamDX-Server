@@ -92,7 +92,8 @@ sub broadcast {
 
         # log debugging messages
         if ( $self->{debug} ) {
-            $self->log_this( "broadcasting to " . $user->{name} . ":  " . $string );
+            #$self->log_this( "broadcasting to " . $user->{name} . ":  " . $string );
+            $self->log_this( "broadcasting to " ."someones name". ":  " . $string );
         }
 
         # send to socket without error or remove the user and connection
