@@ -97,7 +97,7 @@ sub broadcast {
         }
 
         # send to socket without error or remove the user and connection
-        $user->{fh}->send ( encode_json($data)."\r\n");
+        $self->{users}->{$user}->send ( encode_json($data)."\r\n");
 
     }
 }
