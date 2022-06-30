@@ -30,8 +30,9 @@ sub mux_input {
     shift;    # mux not needed
     shift;    # fh not needed
     my $input = shift; # Scalar reference to the input
-
+    $self->{server}->log_this("mux_imput \n");
     while ( $$input =~ s/^(.*?)\r\n// ) {
+    $self->{server}->log_this("processing $1");
         $self->process_command($1);
     }
 }
@@ -53,15 +54,16 @@ sub process_command {
     # attempt to successfully decode the json
     my $data;
     if ( eval{$data = decode_json($cmd);1;} ){
-
+        $self->{server}->log_this("$cmd");
         # if there's no action in the message then drop it and move on
         return unless defined( $data->{serverAction} );
-
+        $self->{server}->log_this("after return $cmd");
         # look for rpc by the same name as serveraction field
         my $serverAction = $data->{serverAction};
-
+        $self->{server}->log_this(" dispatching $serverAction");
         if ( $self->{server}->{dispatch}->can($serverAction) ) {
             $self->{server}->{dispatch}->$serverAction( $data, $self );
+            $self->{server}->log_this("dispatch cleared");
         }else{
             # actions with no rpc get the json dumped to stderr
             $self->{server}->log_this("\n command not found \n" . encode_json($data) . "\n\n");
@@ -73,7 +75,8 @@ sub process_command {
 sub send{
     my $self = shift;
     my $msg = shift;
-
+    $self->{server}->log_this("send function");
     $self->{fh}->send ($msg);
+    $self->{server}->log_this("sent?");
 }
 1;
