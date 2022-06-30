@@ -53,7 +53,7 @@ sub process_command {
 
     # attempt to successfully decode the json
     my $data;
-    if ( $data = eval{decode_json($cmd);1;} ){
+    if (  eval{$data = decode_json($cmd);1;} ){
         $self->{server}->log_this("$cmd");
         # if there's no action in the message then drop it and move on
         return unless defined( $data->{serverAction} );
