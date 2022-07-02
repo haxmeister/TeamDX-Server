@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use HTML::TableExtract;
 use LWP::Simple;
-
+use JSON;
 sub new {
     my ( $class, $args ) = @_;
     my $self = bless {
