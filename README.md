@@ -84,7 +84,7 @@ If unsuccessful it will respond like this:
   "vouprVersion":"",
   "vouprLastUpdate":"",
   "result":0,
-  "error":""404 error page does not exist on voupr https://voupr.spenced.com/plugin.php?name=acm"
+  "error":"404 error page does not exist on voupr https://voupr.spenced.com/plugin.php?name=acm"
 }
 ```
 Where the client is intended to capture this due to `"result":0` and post the error contained in "error" instead of forwarding it to the VVC_Update function. The error message can vary depending on the type of error.
