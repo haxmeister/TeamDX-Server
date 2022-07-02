@@ -73,7 +73,7 @@ sub send{
     my $self = shift;
     my $msg = shift;
     
-    $self->{fh}->send ($msg);
+    print $self->{fh} "$msg";
     $self->{server}->log_this("sent $msg");
 }
 1;
