@@ -73,7 +73,9 @@ sub send{
     my $self = shift;
     my $msg = shift;
     
-    print $self->{fh} "$msg";
+    $self->{mux}->write($self->{fh}, "$msg");
+    #print $self->{fh} "$msg";
     $self->{server}->log_this("sent $msg");
+    
 }
 1;
