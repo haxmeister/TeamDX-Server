@@ -30,7 +30,6 @@ sub mux_input {
     shift;    # mux not needed
     shift;    # fh not needed
     my $input = shift; # Scalar reference to the input
-    $self->{server}->log_this("mux_imput \n");
     while ( $$input =~ s/^(.*?)\r\n// ) {
     $self->{server}->log_this("processing $1");
         $self->process_command($1);
@@ -57,10 +56,8 @@ sub process_command {
         $self->{server}->log_this("$cmd");
         # if there's no action in the message then drop it and move on
         return unless defined( $data->{serverAction} );
-        $self->{server}->log_this("after return $cmd");
         # look for rpc by the same name as serveraction field
         my $serverAction = $data->{serverAction};
-        $self->{server}->log_this(" dispatching $serverAction");
         if ( $self->{server}->{dispatch}->can($serverAction) ) {
             $self->{server}->{dispatch}->$serverAction( $data, $self );
             $self->{server}->log_this("dispatch cleared");
@@ -75,8 +72,8 @@ sub process_command {
 sub send{
     my $self = shift;
     my $msg = shift;
-    $self->{server}->log_this("send function");
+    
     $self->{fh}->send ($msg);
-    $self->{server}->log_this("sent?");
+    $self->{server}->log_this("sent $msg");
 }
 1;
