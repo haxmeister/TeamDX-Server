@@ -80,6 +80,7 @@ sub VVC_Request{
         $response{error}  = "No data was received from ".$data->{url};
         $user->send(encode_json(\%response));
         $self->{server}->log_this("No data was received from ".$data->{url});
+        return;
     }
 
     if ($content =~ m/<meta http-equiv=\"REFRESH\" content=\"0;url=404error.php">/){
@@ -87,6 +88,7 @@ sub VVC_Request{
         $response{error}  = "404 error page does not exist on voupr ".$data->{url};
         $user->send(encode_json(\%response));
         $self->{server}->log_this("404 error page does not exist on voupr".$data->{url});
+        return;
     }
 
     $self->{'table reader'}->parse($content);
@@ -103,5 +105,6 @@ sub VVC_Request{
         $response{'vouprLastUpdate'} = $last_release;
         $user->send(encode_json(\%response));
     }
+    return;
 }
 1;
