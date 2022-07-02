@@ -74,7 +74,7 @@ If successful the server will respond like this:
   "error":""
 }
 ```
-note that they vouprID field is ignored by the server currently, and is simply returning this field as it was received. 
+note that the vouprID field is ignored by the server currently, and is simply returning this field as it was received. 
 
 If unsuccessful it will respond like this:
 ```json
