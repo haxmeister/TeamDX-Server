@@ -87,7 +87,7 @@ sub VVC_Request{
         $response{result} = 0;
         $response{error}  = "404 error page does not exist on voupr ".$data->{url};
         $user->send(encode_json(\%response));
-        $self->{server}->log_this("404 error page does not exist on voupr".$data->{url});
+        $self->{server}->log_this("404 error page does not exist on voupr ".$data->{url});
         return;
     }
 
