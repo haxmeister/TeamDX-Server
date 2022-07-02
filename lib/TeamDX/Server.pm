@@ -25,11 +25,11 @@ sub new {
 
     # prepare the dispatcher to manage messages
     $self->{dispatch} = TeamDX::Dispatcher->new( { 'server' => $self, } ) || die $!;
-    print"dispatcher initialized\n";
+    
 
     # make a json translator object
     $self->{json} = JSON->new();
-    print"json initialized\n";
+   
     return $self;
 
 }
@@ -74,7 +74,7 @@ sub listen_on_port{
 
 sub start{
     my $self = shift;
-    print "in start method\n";
+
     #open connection and start listening
     $self->listen_on_port();
 
@@ -87,14 +87,8 @@ sub broadcast {
     my $self = shift;
     my $data = shift;
     my $string = encode_json($data);
-
+    
     foreach my $user ( $self->userlist() ) {
-
-        # log debugging messages
-        if ( $self->{debug} ) {
-            #$self->log_this( "broadcasting to " . $user->{name} . ":  " . $string );
-            $self->log_this( "broadcasting to " ."someones name". ":  " . $string );
-        }
 
         # send to socket without error or remove the user and connection
         $self->{users}->{$user}->send ( encode_json($data)."\r\n");
