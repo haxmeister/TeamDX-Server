@@ -61,14 +61,14 @@ sub VVC_Request{
     my $self   = shift;
     my $data   = shift;
     my $user   = shift;
-    my %response = {
+    my %response = (
         'clientAction'    => "VVC_Update",
         'vouprID'         => $data->{vouprID},
         'vouprVersion'    => "",
         'vouprLastUpdate' => '',
         'result'          => 1,
         'error'           => '',
-    };
+    );
     my $content = '';
     
     # trap errors from external library;
