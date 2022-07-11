@@ -34,7 +34,7 @@ sub login {
 
     if ( exists $data->{name} ) {
         $user->{isloggedin} = 1;
-        $user->{name} = $data->{name}
+        $user->{name} = $data->{name};
         $msg = '{"clientAction":"login","result":1}';
         $user->send( $msg . $self->{server}->{eol} );
         $self->{server}->debug_msg( "sending:  " . $msg );
